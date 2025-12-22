@@ -1,0 +1,123 @@
+# configs/carla/mask2former_fan_panoptic_3k.yaml
+_BASE_: ../maskformer2_R50_bs16_90k.yaml
+
+MODEL:
+  META_ARCHITECTURE: "MaskFormer"
+
+  BACKBONE:
+    NAME: "D2FANTransformer"
+
+  FAN:
+    PATCH_SIZE: 4
+    IN_CHANS: 3
+    NUM_CLASSES: 19
+    EMBED_DIM: 480
+    DEPTH: 22
+    OUT_IDX: 18
+    NUM_HEADS: 10
+    MLP_RATIO: 4.0
+    DROP_RATE: 0.0
+    ATTN_DROP_RATE: 0.0
+    DROP_PATH_RATE: 0.1
+    CLS_ATTN_LAYERS: 2
+    ETA: 1.0
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]
+
+  # ▶ from-scratch면 빈 문자열. (네 rand.pth가 진짜 "랜덤 초기화" 텐서 덤프가 아니면 "")
+  WEIGHTS: ""   # "/home/vip-dell/H/NoRo_AD/checkpoints/rand.pth"
+
+  PIXEL_MEAN: [123.675, 116.280, 103.530]
+  PIXEL_STD:  [58.395, 57.120, 57.375]
+
+  SEM_SEG_HEAD:
+    NAME: "MaskFormerHead"
+    IGNORE_VALUE: 255
+    NUM_CLASSES: 19
+    LOSS_WEIGHT: 1.0
+    CONVS_DIM: 256
+    MASK_DIM: 256
+    NORM: "GN"
+    # pixel decoder
+    PIXEL_DECODER_NAME: "MSDeformAttnPixelDecoder"
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    DEFORMABLE_TRANSFORMER_ENCODER_IN_FEATURES: ["res3", "res4", "res5"]
+    COMMON_STRIDE: 4
+    TRANSFORMER_ENC_LAYERS: 6
+
+  MASK_FORMER:
+    TRANSFORMER_DECODER_NAME: "MultiScaleMaskedTransformerDecoder"
+    TRANSFORMER_IN_FEATURE: "multi_scale_pixel_decoder"
+    DEEP_SUPERVISION: True
+    NO_OBJECT_WEIGHT: 0.1
+    CLASS_WEIGHT: 2.0
+    MASK_WEIGHT: 5.0
+    DICE_WEIGHT: 5.0
+    HIDDEN_DIM: 256
+    NUM_OBJECT_QUERIES: 100
+    NHEADS: 8
+    DROPOUT: 0.0
+    DIM_FEEDFORWARD: 2048
+    ENC_LAYERS: 0
+    PRE_NORM: False
+    ENFORCE_INPUT_PROJ: False
+    SIZE_DIVISIBILITY: 32
+    DEC_LAYERS: 10
+    TRAIN_NUM_POINTS: 12544
+    OVERSAMPLE_RATIO: 3.0
+    IMPORTANCE_SAMPLE_RATIO: 0.75
+    TEST:
+      SEMANTIC_ON: True
+      INSTANCE_ON: True
+      PANOPTIC_ON: True
+      OVERLAP_THRESHOLD: 0.8
+      OBJECT_MASK_THRESHOLD: 0.8
+
+DATASETS:
+  # ▶ resister.py에서 등록한 이름 사용
+  TRAIN: ("carla_panoptic_train_3k",)
+  TEST:  ("carla_panoptic_val_500",)
+
+DATALOADER:
+  NUM_WORKERS: 4
+
+# ▶ panoptic 학습/평가용 매퍼 지정 (separated 등록을 쓸 때 이게 가장 안전)
+INPUT:
+  FORMAT: "RGB"
+  DATASET_MAPPER_NAME: "mask_former_panoptic"
+  # 원본 해상도 2048x1024 기준 권장 증강/크롭
+  MIN_SIZE_TRAIN: [512, 800, 1024]
+  MAX_SIZE_TRAIN: 2048
+  MIN_SIZE_TEST: 1024
+  MAX_SIZE_TEST: 2048
+  CROP:
+    ENABLED: True
+    TYPE: "absolute"
+    SIZE: [512, 1024]
+  COLOR_AUG_SSD: False
+  RANDOM_FLIP: "horizontal"
+
+SOLVER:
+  OPTIMIZER: "ADAMW"
+  BASE_LR: 0.0001
+  WEIGHT_DECAY: 0.05
+  WEIGHT_DECAY_NORM: 0.0
+  WEIGHT_DECAY_EMBED: 0.0
+  IMS_PER_BATCH: 2           # GPU 메모리 맞춰 조정 (2~8)
+  # ▶ 3k 데이터에 맞춘 총 이터 수 (원본 90k는 과함; 필요시 늘리거나 줄이기)
+  MAX_ITER: 60000
+  LR_SCHEDULER_NAME: "WarmupPolyLR"
+  POLY_LR_POWER: 0.9
+  WARMUP_ITERS: 1000
+  CHECKPOINT_PERIOD: 5000
+  CLIP_GRADIENTS:
+    ENABLED: True
+    CLIP_TYPE: "full_model"
+    CLIP_VALUE: 1.0
+
+TEST:
+  EVAL_PERIOD: 5000
+
+OUTPUT_DIR: "/media/vip-dell/HC/train_bh_result"
+
+
+VERSION: 2

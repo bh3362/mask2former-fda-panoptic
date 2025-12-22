@@ -1,0 +1,73 @@
+_BASE_: ../maskformer2_R50_bs16_90k.yaml
+
+# FAN Backbone을 사용하는 설정
+MODEL:
+  BACKBONE:
+    NAME: "D2FANTransformer"
+  FAN:
+    PATCH_SIZE: 4            # FAN의 패치 크기
+    IN_CHANS: 3               # 입력 채널 수 (RGB 이미지의 경우 3)
+    NUM_CLASSES: 19           # 분류할 클래스 수
+    EMBED_DIM: 480            # 임베딩 차원
+    DEPTH: 22                 # 모델의 깊이 (블록 수)
+    OUT_IDX: 18               # 아웃풋 인덱스 (디코더로 들어갈 피처 맵 인덱스)
+    NUM_HEADS: 10             # 멀티헤드 어텐션에서의 헤드 수
+    MLP_RATIO: 4.0            # MLP의 hidden dim 비율
+    DROP_RATE: 0.0            # 드롭아웃 비율
+    ATTN_DROP_RATE: 0.0       # 어텐션 드롭아웃 비율
+    DROP_PATH_RATE: 0.1       # 드롭 경로 비율 0.3에서 0.1로 변경
+    CLS_ATTN_LAYERS: 2        # 클래스 어텐션 레이어 수
+    ETA: 1.0                  # LayerScale 초기화 값
+    OUT_FEATURES: ["res2", "res3", "res4", "res5"]  # 디코더로 보낼 피처 맵
+
+  WEIGHTS: "/home/ailab/Desktop/hyungchan/Mask2Former/mask2former/modeling/backbone/fan_hybrid_large_in22k_1k_384_modified.pth.tar"  # 사전학습된 FAN 가중치 파일
+  PIXEL_MEAN: [123.675, 116.280, 103.530]  # 이미지 전처리에서 사용할 평균값
+  PIXEL_STD: [58.395, 57.120, 57.375]      # 이미지 전처리에서 사용할 표준편차
+
+  META_ARCHITECTURE: "MaskFormer"
+  SEM_SEG_HEAD:
+    NAME: "MaskFormerHead"
+    IGNORE_VALUE: 255
+    NUM_CLASSES: 19
+    LOSS_WEIGHT: 1.0
+    CONVS_DIM: 256
+    MASK_DIM: 256
+    NORM: "GN"
+    # pixel decoder
+    PIXEL_DECODER_NAME: "MSDeformAttnPixelDecoder"
+    IN_FEATURES: ["res2", "res3", "res4", "res5"]
+    DEFORMABLE_TRANSFORMER_ENCODER_IN_FEATURES: ["res3", "res4", "res5"] # for FAN hybrid #["res3", "res4", "res5"] #for mask2former
+    COMMON_STRIDE: 4
+    TRANSFORMER_ENC_LAYERS: 6
+
+    
+  MASK_FORMER:
+    TRANSFORMER_DECODER_NAME: "MultiScaleMaskedTransformerDecoder"
+    TRANSFORMER_IN_FEATURE: "multi_scale_pixel_decoder"
+    DEEP_SUPERVISION: True
+    NO_OBJECT_WEIGHT: 0.1
+    CLASS_WEIGHT: 2.0
+    MASK_WEIGHT: 5.0
+    DICE_WEIGHT: 5.0
+    HIDDEN_DIM: 256
+    NUM_OBJECT_QUERIES: 100
+    NHEADS: 8
+    DROPOUT: 0.0
+    DIM_FEEDFORWARD: 2048
+    ENC_LAYERS: 0
+    PRE_NORM: False
+    ENFORCE_INPUT_PROJ: False
+    SIZE_DIVISIBILITY: 32
+    DEC_LAYERS: 10  # 9 decoder layers, add one for the loss on learnable query
+    TRAIN_NUM_POINTS: 12544
+    OVERSAMPLE_RATIO: 3.0
+    IMPORTANCE_SAMPLE_RATIO: 0.75
+    TEST:
+      SEMANTIC_ON: True
+      INSTANCE_ON: True
+      PANOPTIC_ON: True
+      OVERLAP_THRESHOLD: 0.8
+      OBJECT_MASK_THRESHOLD: 0.8
+
+# INPUT:
+#   SIZE: 1024            # 입력 이미지 크기
