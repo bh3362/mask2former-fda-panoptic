@@ -35,6 +35,9 @@ touching the labels or the model architecture — but a large gap remains,
 showing that appearance-level adaptation alone cannot fully close a
 structural sim-to-real gap for a task as demanding as panoptic segmentation.
 
+<p align="center"><img src="docs/images/carla_sample.jpg" width="640" alt="CARLA simulator sample frame"><br>
+<sub>A CARLA-simulated driving frame — the source domain for training.</sub></p>
+
 ## Pipeline
 
 ```mermaid
@@ -95,6 +98,7 @@ scripts/
     eval_instance_ap.py            supplementary: COCO-style instance AP
   inference/
     viz_pred_vs_gt.py              side-by-side GT-vs-prediction panoptic PNG stitcher
+docs/images/                     figures used in this README
 ```
 
 ## Setup
@@ -160,6 +164,14 @@ around the zero frequency, keeps the source's phase untouched, and inverts
 the FFT — producing an image with CARLA's geometry but Cityscapes' color
 statistics. The thesis tried `beta` in `{0.05, 0.01, 0.002}` and reports
 `beta = 0.002` as the most stable setting.
+
+<table align="center">
+<tr>
+<td align="center" width="33%"><img src="docs/images/fda_source_carla.jpg" width="100%" alt="CARLA source image"><br><sub><b>Source</b> — CARLA</sub></td>
+<td align="center" width="33%"><img src="docs/images/fda_target_cityscapes.jpg" width="100%" alt="Cityscapes target image"><br><sub><b>Target</b> — Cityscapes</sub></td>
+<td align="center" width="33%"><img src="docs/images/fda_result.jpg" width="100%" alt="FDA-styled CARLA image"><br><sub><b>Result</b> — CARLA in Cityscapes style</sub></td>
+</tr>
+</table>
 
 > **Note on reconstruction:** the FDA math (`fda_amplitude_swap`) is kept
 > verbatim from the original experiment script and correctly implements the
@@ -257,6 +269,36 @@ FDA improves every metric — most visibly the "stuff" columns (PQ_st +9.4,
 SQ_st +10.8) — but the thing-class numbers (small cars/people/etc.) stay very
 low, and the overall PQ is still far below the real-data baseline. See the
 thesis §IV-3 for the full discussion.
+
+### Qualitative results
+
+Panoptic predictions on two real Cityscapes-val frames, from the CARLA-only
+model with and without FDA:
+
+<table align="center">
+<tr>
+<th align="center" width="33%">Cityscapes input</th>
+<th align="center" width="33%">Non-FDA prediction</th>
+<th align="center" width="33%">FDA prediction</th>
+</tr>
+<tr>
+<td><img src="docs/images/scene1_input.jpg" width="100%" alt="Cityscapes input, scene 1"></td>
+<td><img src="docs/images/scene1_nonfda_pred.jpg" width="100%" alt="Non-FDA prediction, scene 1"></td>
+<td><img src="docs/images/scene1_fda_pred.jpg" width="100%" alt="FDA prediction, scene 1"></td>
+</tr>
+<tr>
+<td><img src="docs/images/scene2_input.jpg" width="100%" alt="Cityscapes input, scene 2"></td>
+<td><img src="docs/images/scene2_nonfda_pred.jpg" width="100%" alt="Non-FDA prediction, scene 2"></td>
+<td><img src="docs/images/scene2_fda_pred.jpg" width="100%" alt="FDA prediction, scene 2"></td>
+</tr>
+</table>
+
+The Non-FDA model fragments large "stuff" regions (sky/road/building) into
+noisy, disconnected patches and occasionally misclassifies pedestrians
+(e.g. splitting one person into `person`/`rider` fragments). The FDA model
+produces cleaner, more contiguous region boundaries — consistent with its
+higher SQ_st score above — though small "thing" objects are still poorly
+localized in both.
 
 ## Inference / qualitative comparison
 
