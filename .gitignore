@@ -1,0 +1,33 @@
+# datasets / outputs / checkpoints — never commit these
+output/
+inference_test_output/
+instant_test_output/
+*.pth
+*.pkl
+*.npy
+*.log
+*.tar
+
+# compilation and distribution
+__pycache__/
+_ext
+*.pyc
+*.pyd
+*.so
+*.dll
+*.egg-info/
+build/
+dist/
+wheels/
+
+# editor / OS
+.idea
+.vscode
+*.swn
+*.swo
+*.swp
+*~
+.DS_Store
+
+# notebooks
+**/.ipynb_checkpoints/

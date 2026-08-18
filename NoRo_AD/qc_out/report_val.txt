@@ -1,7 +1,0 @@
-[SPLIT] val
-JSON: /media/vip-dell/HC/train_data_3k_2/panoptic_json/panoptic_val.json
-IMG_DIR: /media/vip-dell/HC/train_data_3k_2/leftImg8bit/val
-PAN_DIR: /media/vip-dell/HC/train_data_3k_2/panoptic_gt_id/val
-images=500 annotations=500 categories=19
-
-[1/500] Town05_HARD_RAIN_WET_DAY_frame_000751_leftImg8bit.png | seginfo=8 uniqPNG=9 inter=8

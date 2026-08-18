@@ -1,0 +1,22 @@
+# Core Mask2Former / Detectron2 dependencies
+cython
+scipy
+shapely
+timm
+h5py
+submitit
+scikit-image
+
+# Used by scripts/ (data prep, FDA, evaluation)
+opencv-python
+numpy
+tqdm
+Pillow
+torch
+torchvision
+
+# Detectron2 and panopticapi are not on PyPI in a form that plays well with
+# pinned versions here — install them from source instead:
+#   python -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+#   python -m pip install 'git+https://github.com/cocodataset/panopticapi.git'
+# See INSTALL.md for the full Mask2Former environment setup.
