@@ -334,7 +334,7 @@ its ground truth.
 ## Citation
 
 ```bibtex
-@mastersthesis{hong2025fda,
+@thesis{hong2025fda,
   title  = {Synthetic-to-Real Domain Adaptation for Panoptic Segmentation: An FDA-Enhanced Mask2Former Analysis},
   author = {Hong, Bonghun},
   school = {Soongsil University, AI Convergence Division},
