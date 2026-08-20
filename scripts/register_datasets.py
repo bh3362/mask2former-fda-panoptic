@@ -3,15 +3,11 @@
 """
 Detectron2 dataset registration for the CARLA panoptic train/val split.
 
-This is the single, parameterized version of what used to be two
-near-duplicate blocks: the original `resister.py` (registered the raw,
-Non-FDA `leftImg8bit` images) and an inline copy of the same logic baked into
-`train_from_scratch_FDA.py` (registered `leftImg8bit_fda` instead). The only
-real difference between "baseline" and "FDA" runs is which image subfolder
-gets registered as the dataset's `image_root` — everything else (panoptic
-JSON/PNG paths, category/thing/stuff id maps) is identical, so both
-`train_baseline.py` and `train_fda.py` now call `register_carla_panoptic()`
-with a different `image_subdir`.
+Registers <train_name>/<val_name> from a COCO-panoptic dataset root.
+image_subdir="leftImg8bit" for the raw (Non-FDA) images, or
+"leftImg8bit_fda" for the FDA-styled ones — everything else about the two
+runs is identical, so train_baseline.py and train_fda.py both call this
+with just a different image_subdir.
 """
 
 import os

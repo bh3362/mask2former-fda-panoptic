@@ -3,22 +3,12 @@
 """
 Fourier Domain Adaptation (FDA) — batch dataset conversion.
 
-RECONSTRUCTED SCRIPT. The core algorithm (`fda_amplitude_swap`) below is kept
-verbatim from the original experiment script (`H/NoRo_AD/BH_test/save_fda_dataset.py`)
-and correctly implements the paper's Eq. 2.1-2.4 (Yang & Soatto, 2020): source
-phase is preserved, and only the low-frequency amplitude within a radius-beta
-circle around the zero frequency is swapped for the target (Cityscapes)
-amplitude. What did NOT survive is the one-off invocation that ran this over
-the full 3,500-image CARLA training split (the original script's `__main__`
-block only ever processed a 10-image test batch with a different beta and a
-different output folder name than the one the trained models actually used).
-This version generalizes that logic into a proper CLI so the full run can be
-reproduced: point `--src-root` at a CARLA `leftImg8bit` split, `--cityscapes-root`
-at real Cityscapes training images to sample style targets from, and it writes
-FDA-styled RGB images to `--dst-root` at whatever `--beta` the thesis run used
-(reported as beta=0.002 in the final write-up; beta in {0.01, 0.05} were also
-tried per the thesis text). Panoptic/semantic labels are untouched by design —
-FDA only transforms pixel color statistics, never the label maps.
+Swaps the low-frequency FFT amplitude of a source (CARLA) image for a target
+(Cityscapes) image's amplitude, keeping the source phase (Yang & Soatto 2020,
+Eq. 2.1-2.4). Only the RGB pixels change; labels are left untouched.
+
+Note: cleaned-up/generalized version of the original conversion script —
+the surviving original only ever ran a small test batch, not the full split.
 
 Usage:
     python apply_fda.py \

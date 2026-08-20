@@ -3,18 +3,14 @@
 """
 Build the CARLA COCO-panoptic training dataset used in the thesis.
 
-Reads raw per-frame CARLA capture output (RGB + trainId19-or-raw semantic PNG
-+ panoptic-ID PNG, one folder per Town x weather scenario — produced by the
-CARLA PythonAPI capture loop, not included in this repo, see thesis Sec. III-2
-for capture parameters: Town01-03, SUNNY weather, FOV 90, 2048x1024) and packs
-it into a COCO panoptic dataset: copies/hardlinks the RGB images, converts
-semantic labels to Cityscapes trainId19 (auto-detecting CARLA's old/new tag
-sets via `carla_label_mapping.py`), renders panoptic-ID maps to COCO's
-id2rgb PNG encoding, and writes the `panoptic_{train,val}.json` COCO panoptic
-annotation files Detectron2 expects.
+Reads raw per-frame CARLA capture output (RGB + semantic PNG + panoptic-ID
+PNG, one folder per Town x weather scenario — see thesis Sec. III-2 for the
+capture setup) and packs it into a COCO panoptic dataset: copies the RGB
+images, maps semantic labels to Cityscapes trainId19 (see
+carla_label_mapping.py), and writes panoptic_{train,val}.json.
 
-Final split used in the thesis: Town01 + Town02 -> train, Town03 -> val,
-SUNNY_GLARE_DAY weather only, every available frame (no random subsampling).
+Final split: Town01 + Town02 -> train, Town03 -> val, SUNNY_GLARE_DAY only,
+every available frame (no subsampling).
 
 Usage:
     python make_carla_panoptic_dataset.py \

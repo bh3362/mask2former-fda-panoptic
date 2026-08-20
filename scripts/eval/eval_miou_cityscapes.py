@@ -3,20 +3,13 @@
 """
 Semantic mIoU evaluation on real Cityscapes validation set (19 trainIds).
 
-RECONSTRUCTED SCRIPT. No single surviving script in the original project ran
-mIoU end-to-end against real Cityscapes val — `eval_panoptic_cityscapes.py`
-(this directory) computes PQ/SQ/RQ via Detectron2's COCOPanopticEvaluator but
-not mIoU, while the confusion-matrix mIoU routine that *was* found
-(`fast_hist` / `per_class_iu`, kept verbatim below) was wired up for a
-different, CARLA-internal side-experiment. This script re-targets that same
-two-piece design — "COCOPanopticEvaluator for PQ/SQ/RQ, our own routine for
-mIoU" — which is exactly the pattern the project's own WildDash2 eval variant
-documented in its docstring, just pointed at real Cityscapes-val instead.
+Runs the trained checkpoint over a Cityscapes split, argmaxes the semantic
+logits into a trainId map, and accumulates a confusion matrix against the
+trainId ground truth from `cityscapes_labelIds_to_trainIds.py`.
 
-It runs the trained checkpoint over every image in a Cityscapes val split,
-argmaxes the model's semantic logits into a 19-class trainId map, and
-accumulates a confusion matrix against the trainId ground truth produced by
-`cityscapes_labelIds_to_trainIds.py`.
+Note: no surviving script ran mIoU against real Cityscapes val end-to-end;
+this reuses the project's confusion-matrix routine (fast_hist/per_class_iu)
+with a new inference loop.
 
 Usage:
     python eval_miou_cityscapes.py \

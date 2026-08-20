@@ -3,10 +3,9 @@
 """
 Panoptic PQ/SQ/RQ evaluation on real Cityscapes validation set (19 trainIds).
 
-Registers a Cityscapes panoptic-trainId dataset from the JSON+PNGs produced by
-`../data_prep/prepare_cityscapes_panoptic.py`, loads a trained checkpoint, and
-runs Detectron2's `COCOPanopticEvaluator` — this produces the exact
-All/Things/Stuff PQ/SQ/RQ columns reported in the thesis's result tables.
+Registers a Cityscapes panoptic-trainId dataset from the JSON+PNGs produced
+by `../data_prep/prepare_cityscapes_panoptic.py`, then runs Detectron2's
+COCOPanopticEvaluator (All/Things/Stuff PQ/SQ/RQ).
 
 Usage:
     python eval_panoptic_cityscapes.py \
@@ -81,7 +80,7 @@ def _register_cityscapes_panoptic_trainId():
     cats = j.get("categories", [])
     print(f"[REG] categories in JSON: {len(cats)} (expect 19)")
 
-    # ==== ★ 핵심 수정: thing/stuff 매핑을 모두 0~18 identity로 열어둔다 ====
+    # ==== 핵심 수정: thing/stuff 매핑을 모두 0~18 identity로 열어둔다 ====
     all_ids = [c["id"] for c in cats]        # 보통 [0,1,...,18]
     thing_ids = list(all_ids)
     stuff_ids = list(all_ids)

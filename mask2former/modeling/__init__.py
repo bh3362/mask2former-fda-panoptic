@@ -1,10 +1,7 @@
 # Copyright (c) Facebook, Inc. and its affiliates.
 from .backbone.swin import D2SwinTransformer
 try:
-    # FAN backbone is not used by this thesis (Swin-Large was used); it pulls
-    # in `mmseg`/`mmcv.runner`, which aren't dependencies of the rest of this
-    # repo, so importing it is optional and best-effort.
-    from .backbone.fan import D2FANTransformer
+    from .backbone.fan import D2FANTransformer  # needs mmseg/mmcv, not a hard dep
 except ImportError:
     pass
 from .pixel_decoder.fpn import BasePixelDecoder

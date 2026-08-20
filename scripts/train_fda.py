@@ -16,15 +16,13 @@ import sys, os, json, logging, copy, itertools
 from collections import OrderedDict
 from typing import Any, Dict, List, Set
 
-# --- project paths: repo root (for `mask2former`) + this dir (for `register_datasets`) ---
+# repo root (for `mask2former`) + this dir (for `register_datasets`)
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(_THIS_DIR))
 sys.path.append(_THIS_DIR)
 from register_datasets import register_carla_panoptic
 
-# Dataset root produced by scripts/data_prep/make_carla_panoptic_dataset.py;
-# the FDA-styled images must already exist under <root>/leftImg8bit_fda
-# (see scripts/fda/apply_fda.py). Override via the CARLA_DATASET_ROOT env var.
+# needs <root>/leftImg8bit_fda to already exist (see scripts/fda/apply_fda.py)
 CARLA_DATASET_ROOT = os.environ.get("CARLA_DATASET_ROOT", "/media/vip-dell/HC/final_dataset5")
 
 from tqdm import tqdm
@@ -180,7 +178,7 @@ class SavePanopticPredictions(DatasetEvaluator):
     def reset(self):
         pass
 
-    # 🌟 [추가] 추론 ID를 GT 형식으로 재매핑하는 함수
+    # [추가] 추론 ID를 GT 형식으로 재매핑하는 함수
     def _remap_prediction_ids(self, pan_seg_tensor: torch.Tensor, sem_seg_tensor: torch.Tensor) -> np.ndarray:
         # GT 데이터셋을 생성할 때 사용한 Road ID (99999)와 동일하게 맞춥니다.
         ROAD_INFERENCE_ID = 26
@@ -206,7 +204,7 @@ class SavePanopticPredictions(DatasetEvaluator):
                 image_id = base
 
             panoptic = out.get("panoptic_seg", None)
-            # 🌟 [추가] semantic_seg 출력 확보 (재매핑에 필요)
+            # [추가] semantic_seg 출력 확보 (재매핑에 필요)
             sem_seg_tensor = out.get("semantic_seg", None) 
             
             if panoptic is None or sem_seg_tensor is None:
@@ -217,10 +215,10 @@ class SavePanopticPredictions(DatasetEvaluator):
             try:
                 pan_seg, segments_info = panoptic
                 
-                # 🌟 [수정] 재매핑 함수 호출
+                # [수정] 재매핑 함수 호출
                 pan_remapped = self._remap_prediction_ids(pan_seg, sem_seg_tensor)
                 
-                # 🌟 [수정] 컬러맵 생성에 재매핑된 pan_remapped 사용
+                # [수정] 컬러맵 생성에 재매핑된 pan_remapped 사용
                 color = id2rgb(pan_remapped)  # (H,W,3) uint8 RGB
 
                 png_path = os.path.join(self.save_dir, f"{image_id}.png")
